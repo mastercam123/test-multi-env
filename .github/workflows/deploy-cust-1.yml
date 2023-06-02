@@ -1,4 +1,4 @@
-name: Pipeline for trv environment
+name: Pipeline for customer environment
 on:
   workflow_dispatch:
 
