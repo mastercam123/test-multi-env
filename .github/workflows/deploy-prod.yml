@@ -7,8 +7,8 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      siema-app: ${{ steps.filter.outputs.siema-app }}
-      siema-frontend: ${{ steps.filter.outputs.siema-frontend }}
+      app1: ${{ steps.filter.outputs.app1 }}
+      app2: ${{ steps.filter.outputs.app2 }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -20,3 +20,29 @@ jobs:
       run: |
         git describe --tags --abbrev=0 HEAD~1
         echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
+
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        base: ${{ steps.fetch_tag.outputs.prev_tag }}
+        filters: |
+          app1:
+            - 'app1/**'
+          app2:
+            - 'app2/**'
+
+  call-reusable-workflow-app1:
+    needs: changes
+    if: ${{ needs.changes.outputs.app1 == 'true' }}
+    uses: ./.github/workflows/app1_image_builder_workflow.yml
+    with:
+      gh_environment: PROD_ENVIRONMENT
+      DEPLOYMENT: internal
+
+  call-reusable-workflow-app2:
+    needs: changes
+    if: ${{ needs.changes.outputs.app2 == 'true' }}
+    uses: ./.github/workflows/app2_image_builder_workflow.yml
+    with:
+      gh_environment: PROD_ENVIRONMENT
+      DEPLOYMENT: internal

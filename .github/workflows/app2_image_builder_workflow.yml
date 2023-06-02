@@ -1,0 +1,56 @@
+name: reusable workflow to push images to the ECR
+
+on:
+  workflow_call:
+    inputs:
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: true
+        type: string
+      DEPLOYMENT:
+        description: 'Type of deployment in vossloh internal or customer account'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  image-push:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v1-node16
+          with:
+            role-to-assume: ${{ vars.ECR_PUSH_ROLE }}
+            role-session-name: ecr-push-registry-${{ github.run_number }}
+            aws-region: ${{ vars.AWS_REGION }}
+            mask-aws-account-id: 'no'
+        
+        - name: Login to Amazon ECR in shared account
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Set output of the release version
+          if: startsWith(github.event.ref, 'refs/tags/v')
+          id: vars
+          run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+        - name: Build and push docker image for prod environment
+          if: startsWith(github.event.ref, 'refs/tags/v') 
+          id: prod-image
+          env:
+            RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+            ECR_URL:  ${{ vars.ECR_URL }}
+            COMPANY_IDENTIFIER: ${{ vars.COMPANY_IDENTIFIER }} 
+            APPLICATION_NAME: ${{ vars.APPLICATION_NAME_APP2 }}  
+          run: bash ./.github/workflows/build-image.sh
+
+        - name: Log out of Amazon ECR
+          if: always()
+          run: docker logout ${{ steps.login-ecr.outputs.registry }}       
