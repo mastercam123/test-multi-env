@@ -3,13 +3,13 @@ on:
   workflow_dispatch:
 
 jobs: 
-  call-reusable-workflow-siema-app:
+  call-reusable-workflow-app1:
     uses: ./.github/workflows/app1_image_builder_workflow.yml
     with:
       gh_environment: CUSTOMER_1
       DEPLOYMENT: customer
 
-  call-reusable-workflow-siema-frontend:
+  call-reusable-workflow-app2:
     uses: ./.github/workflows/app2_image_builder_workflow.yml
     with:
       gh_environment: CUSTOMER_1
