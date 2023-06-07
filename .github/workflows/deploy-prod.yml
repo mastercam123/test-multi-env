@@ -17,7 +17,7 @@ jobs:
 
     - name: Get previous tag to compare
       id: fetch_tag
-      run: bash git_check.sh
+      run: bash ./.github/workflows/git_check.sh
         # git describe --tags --abbrev=0 HEAD~1
         # echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
 
