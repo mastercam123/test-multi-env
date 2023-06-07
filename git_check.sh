@@ -2,7 +2,8 @@
 set -e
 
 if [[ $(git describe --tags --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`) ]]; then
-    echo "There are previous version"
+    echo "There are previous versions"
+    echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
 else
     echo "No tags exist previously in this repository."
     echo "This is first tag in the repository."
