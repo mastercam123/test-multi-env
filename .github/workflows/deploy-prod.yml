@@ -17,9 +17,9 @@ jobs:
 
     - name: Get previous tag to compare
       id: fetch_tag
-      run: |
-        git describe --tags --abbrev=0 HEAD~1
-        echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
+      run: bash git_check.sh
+        # git describe --tags --abbrev=0 HEAD~1
+        # echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
 
     - uses: dorny/paths-filter@v2
       id: filter
