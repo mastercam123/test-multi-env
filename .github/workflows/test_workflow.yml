@@ -1,0 +1,34 @@
+name: reusable workflow to test multiple condition
+
+on:
+  workflow_call:
+    inputs:
+      gh_environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  image-push:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.gh_environment }}
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: echo variables from APP_1
+          if: inputs.gh_environment == 'APP1_ENV'
+          run: |
+            echo "The application name for Application 1 is : ${{ vars.APP_NAME }}"
+            echo "The application ID for Application 1 is : ${{ vars.APP_ID }}"
+
+        - name: echo variables from APP_2
+          if: inputs.gh_environment == 'APP2_ENV'
+          run: |
+            echo "The application name for Application 2 is : ${{ vars.APP_NAME }}"
+            echo "The application ID for Application 2 is : ${{ vars.APP_ID }}"
+            echo "The version of Application 2 is : ${{ vars.APP_VERSION }}"

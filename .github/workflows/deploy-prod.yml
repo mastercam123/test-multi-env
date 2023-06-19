@@ -1,7 +1,8 @@
 name: Pipeline for production environment
 on:
   push:
-    tags: ['v*.*.*']
+    #tags: ['v*.*.*']
+    branches: [ main ]
 
 jobs: 
   changes:
@@ -15,34 +16,48 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Get previous tag to compare
-      id: fetch_tag
-      run: bash ./.github/workflows/git_check.sh
-        # git describe --tags --abbrev=0 HEAD~1
-        # echo "prev_tag=$(git describe --tags --abbrev=0 HEAD~1)" >> $GITHUB_OUTPUT
+    # - name: Get previous tag to compare
+    #   id: fetch_tag
+    #   run: bash ./.github/workflows/git_check.sh
 
     - uses: dorny/paths-filter@v2
       id: filter
       with:
-        base: ${{ steps.fetch_tag.outputs.prev_tag }}
+        # base: ${{ steps.fetch_tag.outputs.prev_tag }}
+        base: ${{ github.ref_name }}
         filters: |
           app1:
             - 'app1/**'
           app2:
             - 'app2/**'
 
-  call-reusable-workflow-app1:
+  # call-reusable-workflow-app1:
+  #   needs: changes
+  #   if: ${{ needs.changes.outputs.app1 == 'true' }}
+  #   uses: ./.github/workflows/app1_image_builder_workflow.yml
+  #   with:
+  #     gh_environment: PROD_ENVIRONMENT
+  #     DEPLOYMENT: internal
+
+  # call-reusable-workflow-app2:
+  #   needs: changes
+  #   if: ${{ needs.changes.outputs.app2 == 'true' }}
+  #   uses: ./.github/workflows/app2_image_builder_workflow.yml
+  #   with:
+  #     gh_environment: PROD_ENVIRONMENT
+  #     DEPLOYMENT: internal
+
+  call-reusable-workflow-env1:
     needs: changes
     if: ${{ needs.changes.outputs.app1 == 'true' }}
-    uses: ./.github/workflows/app1_image_builder_workflow.yml
+    uses: ./.github/workflows/test_workflow.yml
     with:
-      gh_environment: PROD_ENVIRONMENT
-      DEPLOYMENT: internal
+      gh_environment: APP1_ENV
 
-  call-reusable-workflow-app2:
+  call-reusable-workflow-env2:
     needs: changes
     if: ${{ needs.changes.outputs.app2 == 'true' }}
-    uses: ./.github/workflows/app2_image_builder_workflow.yml
+    uses: ./.github/workflows/test_workflow.yml
     with:
-      gh_environment: PROD_ENVIRONMENT
+      gh_environment: APP2_ENV
       DEPLOYMENT: internal
