@@ -60,4 +60,3 @@ jobs:
     uses: ./.github/workflows/test_workflow.yml
     with:
       gh_environment: APP2_ENV
-      DEPLOYMENT: internal
