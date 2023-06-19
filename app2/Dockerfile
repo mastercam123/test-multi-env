@@ -2,4 +2,4 @@ FROM busybox:latest
 
 RUN mkdir /www
 RUN touch www/test.txt
-Run mkdir /loolo
+RUN mkdir /loolo
